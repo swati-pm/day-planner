@@ -1,105 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234f46e5'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='40' fill='white' text-anchor='middle'%3E📅%3C/text%3E%3C/svg%3E" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A beautiful, modern React web application to help you plan and organize your day effectively" />
+    <meta name="theme-color" content="#4f46e5" />
     <title>Day Planner</title>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-calendar-day"></i> Day Planner</h1>
-            <div class="date-display">
-                <span id="currentDate"></span>
-            </div>
-        </header>
-
-        <div class="task-input-section">
-            <div class="input-group">
-                <input type="text" id="taskInput" placeholder="What do you need to do today?" maxlength="100">
-                <input type="time" id="taskTime" title="Set time (optional)">
-                <select id="taskPriority" title="Set priority">
-                    <option value="low">Low Priority</option>
-                    <option value="medium" selected>Medium Priority</option>
-                    <option value="high">High Priority</option>
-                </select>
-                <button id="addTaskBtn" title="Add task">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="stats-section">
-            <div class="stat-card">
-                <span class="stat-number" id="totalTasks">0</span>
-                <span class="stat-label">Total Tasks</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" id="completedTasks">0</span>
-                <span class="stat-label">Completed</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" id="pendingTasks">0</span>
-                <span class="stat-label">Pending</span>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="pending">Pending</button>
-            <button class="filter-btn" data-filter="completed">Completed</button>
-            <button class="filter-btn" data-filter="high">High Priority</button>
-        </div>
-
-        <div class="tasks-section">
-            <div id="tasksList" class="tasks-list">
-                <!-- Tasks will be dynamically added here -->
-            </div>
-            <div id="emptyState" class="empty-state">
-                <i class="fas fa-clipboard-list"></i>
-                <h3>No tasks yet</h3>
-                <p>Add your first task above to get started planning your day!</p>
-            </div>
-        </div>
-
-        <div class="actions-section">
-            <button id="clearCompleted" class="btn-secondary">
-                <i class="fas fa-trash-alt"></i>
-                Clear Completed
-            </button>
-            <button id="clearAll" class="btn-danger">
-                <i class="fas fa-broom"></i>
-                Clear All
-            </button>
-        </div>
-    </div>
-
-    <!-- Edit Task Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Task</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="editTaskInput" placeholder="Task description" maxlength="100">
-                <input type="time" id="editTaskTime">
-                <select id="editTaskPriority">
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button id="saveTaskBtn" class="btn-primary">Save Changes</button>
-                <button id="cancelEditBtn" class="btn-secondary">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='%234f46e5'/%3E%3Ctext x='50' y='65' font-family='Arial' font-size='40' fill='white' text-anchor='middle'%3E📅%3C/text%3E%3C/svg%3E">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

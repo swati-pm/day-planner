@@ -1,0 +1,46 @@
+import { useState, useEffect } from 'react';
+
+export default function Header() {
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    const updateDate = () => {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      };
+      setCurrentDate(now.toLocaleDateString('en-US', options));
+    };
+
+    updateDate();
+    // Update date at midnight
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    
+    const timer = setTimeout(() => {
+      updateDate();
+      // Then update every 24 hours
+      const interval = setInterval(updateDate, 24 * 60 * 60 * 1000);
+      return () => clearInterval(interval);
+    }, msUntilMidnight);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <header className="header">
+      <h1>
+        <i className="fas fa-calendar-day"></i> Day Planner
+      </h1>
+      <div className="date-display">
+        <span>{currentDate}</span>
+      </div>
+    </header>
+  );
+}

@@ -75,7 +75,7 @@ body {
     border-color: #4f46e5;
 }
 
-#taskInput {
+.task-input {
     flex: 1;
     border: none;
     outline: none;
@@ -85,7 +85,7 @@ body {
     background: #f9fafb;
 }
 
-#taskTime, #taskPriority {
+.task-time, .task-priority {
     border: none;
     outline: none;
     padding: 12px;
@@ -95,15 +95,15 @@ body {
     cursor: pointer;
 }
 
-#taskTime {
+.task-time {
     width: 120px;
 }
 
-#taskPriority {
+.task-priority {
     width: 140px;
 }
 
-#addTaskBtn {
+.add-task-btn {
     background: #4f46e5;
     color: white;
     border: none;
@@ -114,7 +114,7 @@ body {
     font-size: 1rem;
 }
 
-#addTaskBtn:hover {
+.add-task-btn:hover {
     background: #3730a3;
     transform: translateY(-1px);
 }
@@ -295,6 +295,7 @@ body {
     transition: opacity 0.2s ease;
 }
 
+.task-actions.show,
 .task-item:hover .task-actions {
     opacity: 1;
 }
