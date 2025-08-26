@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import { useTasks } from './hooks/useTasks';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import type { 
   Task, 
   TaskFilterType, 
@@ -18,7 +20,8 @@ import TaskList from './components/TaskList';
 import EditTaskModal from './components/EditTaskModal';
 import NotificationComponent from './components/Notification';
 
-function App(): React.ReactElement {
+// Main Day Planner App Component (Protected)
+function DayPlannerApp(): React.ReactElement {
   const [tasksState, taskActions] = useTasks();
   const { tasks, loading, error, initialized } = tasksState;
   const [currentFilter, setCurrentFilter] = useState<TaskFilterType>('all');
@@ -219,6 +222,17 @@ function App(): React.ReactElement {
         onClose={closeNotification}
       />
     </div>
+  );
+}
+
+// Main App Component with Authentication
+function App(): React.ReactElement {
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <DayPlannerApp />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
 

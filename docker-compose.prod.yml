@@ -1,0 +1,225 @@
+# Day Planner - Production Docker Compose
+# This file deploys both frontend and backend using images from GitHub Container Registry
+
+version: '3.8'
+
+services:
+  # Day Planner Backend API
+  backend:
+    image: ghcr.io/${GITHUB_USERNAME:-your-username}/day-planner-backend:${BACKEND_TAG:-latest}
+    container_name: day-planner-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+    environment:
+      # Server Configuration
+      - NODE_ENV=production
+      - PORT=3001
+
+      # Database Configuration
+      - LIBSQL_URL=file:data/planner.db
+      - LIBSQL_AUTH_TOKEN=${LIBSQL_AUTH_TOKEN:-}
+
+      # Google OAuth Configuration (Required)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
+      # JWT Configuration (Required)
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+
+      # Session Configuration (Required)
+      - SESSION_SECRET=${SESSION_SECRET}
+
+      # CORS Configuration
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:4173}
+    volumes:
+      # Persistent database storage
+      - backend_data:/app/data
+      # Optional: Custom configuration
+      - ./backend-config:/app/config:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { hostname: 'localhost', port: process.env.PORT || 3001, path: '/api/health', timeout: 2000 }; const req = http.request(options, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => { process.exit(1); }); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - day-planner-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.${DOMAIN:-localhost}`) || PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.services.backend.loadbalancer.server.port=3001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Day Planner Frontend
+  frontend:
+    image: ghcr.io/${GITHUB_USERNAME:-your-username}/day-planner-frontend:${FRONTEND_TAG:-latest}
+    container_name: day-planner-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-4173}:4173"
+    environment:
+      # Application Configuration
+      - NODE_ENV=production
+      
+      # Backend API Configuration
+      - VITE_API_BASE_URL=${API_BASE_URL:-http://localhost:3001/api}
+      
+      # Google OAuth Configuration (Required)
+      - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      
+      # Optional: Analytics and monitoring
+      - VITE_ANALYTICS_ID=${ANALYTICS_ID:-}
+      - VITE_SENTRY_DSN=${SENTRY_DSN:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - day-planner-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.services.frontend.loadbalancer.server.port=4173"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Reverse Proxy (Optional - uncomment if using Traefik)
+  # traefik:
+  #   image: traefik:v2.10
+  #   container_name: day-planner-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "8080:8080"  # Traefik dashboard
+  #   environment:
+  #     - TRAEFIK_API_DASHBOARD=true
+  #     - TRAEFIK_API_INSECURE=true
+  #     - TRAEFIK_PROVIDERS_DOCKER=true
+  #     - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+  #     - TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+  #     - TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
+  #     - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_EMAIL=${ACME_EMAIL}
+  #     - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_STORAGE=/acme.json
+  #     - TRAEFIK_CERTIFICATESRESOLVERS_LETSENCRYPT_ACME_HTTPCHALLENGE_ENTRYPOINT=web
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - traefik_acme:/acme.json
+  #   networks:
+  #     - day-planner-network
+
+  # Database Backup Service (Optional)
+  backup:
+    image: alpine:latest
+    container_name: day-planner-backup
+    restart: "no"
+    volumes:
+      - backend_data:/data:ro
+      - ./backups:/backups
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        timestamp=$$(date +%Y%m%d_%H%M%S) &&
+        sqlite3 /data/planner.db \".backup /backups/planner_backup_$$timestamp.db\" &&
+        echo \"Backup created: planner_backup_$$timestamp.db\" &&
+        find /backups -name '*.db' -mtime +7 -delete &&
+        echo \"Old backups cleaned up\"
+      "
+    profiles:
+      - backup
+    networks:
+      - day-planner-network
+
+  # Monitoring (Optional - Prometheus metrics)
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: day-planner-prometheus
+  #   restart: unless-stopped
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #     - prometheus_data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #     - '--web.console.templates=/etc/prometheus/consoles'
+  #     - '--web.enable-lifecycle'
+  #   networks:
+  #     - day-planner-network
+  #   profiles:
+  #     - monitoring
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: day-planner-grafana
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+  #     - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+  #   networks:
+  #     - day-planner-network
+  #   profiles:
+  #     - monitoring
+
+volumes:
+  # Persistent storage for backend database
+  backend_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}
+
+  # Optional volumes for advanced setups
+  # traefik_acme:
+  #   driver: local
+  # prometheus_data:
+  #   driver: local
+  # grafana_data:
+  #   driver: local
+
+networks:
+  day-planner-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Health check and monitoring endpoints:
+# - Backend Health: http://localhost:3001/api/health
+# - Frontend Health: http://localhost:4173/
+# - Traefik Dashboard: http://localhost:8080/ (if enabled)
+# - Prometheus: http://localhost:9090/ (if enabled)
+# - Grafana: http://localhost:3000/ (if enabled)
+
+# Quick start commands:
+# 1. Copy .env.example to .env.production and configure
+# 2. Run: docker-compose -f docker-compose.prod.yml --env-file .env.production up -d
+# 3. Check status: docker-compose -f docker-compose.prod.yml ps
+# 4. View logs: docker-compose -f docker-compose.prod.yml logs -f
+# 5. Backup database: docker-compose -f docker-compose.prod.yml --profile backup run --rm backup
+# 6. Stop: docker-compose -f docker-compose.prod.yml down
+

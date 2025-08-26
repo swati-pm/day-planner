@@ -156,6 +156,54 @@ export interface TaskActions {
 
 export type UseTasksReturn = [TasksState, TaskActions];
 
+// User and Authentication types
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  picture?: string | null;
+  verified: boolean;
+  createdAt?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface AuthContextType {
+  authState: AuthState;
+  login: (idToken: string) => Promise<void>;
+  logout: () => void;
+  refreshToken: () => Promise<void>;
+  clearError: () => void;
+}
+
+export interface LoginResponse {
+  user: User;
+  token: string;
+}
+
+// Google Auth types
+export interface GoogleCredentialResponse {
+  credential: string;
+  select_by: string;
+}
+
+// Component prop types for auth
+export interface LoginComponentProps {
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
+}
+
+export interface ProtectedRouteProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
 // Utility types
 export type TaskPriority = Task['priority'];
 export type NotificationType = NotificationData['type'];

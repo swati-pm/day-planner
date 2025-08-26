@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import UserProfile from './UserProfile';
 
 export default function Header(): React.ReactElement {
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -35,11 +36,16 @@ export default function Header(): React.ReactElement {
 
   return (
     <header className="header">
-      <h1>
-        <i className="fas fa-calendar-day"></i> Day Planner
-      </h1>
-      <div className="date-display">
-        <span>{currentDate}</span>
+      <div className="header-left">
+        <h1>
+          <i className="fas fa-calendar-day"></i> Day Planner
+        </h1>
+        <div className="date-display">
+          <span>{currentDate}</span>
+        </div>
+      </div>
+      <div className="header-right">
+        <UserProfile />
       </div>
     </header>
   );

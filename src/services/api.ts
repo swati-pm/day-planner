@@ -24,6 +24,11 @@ const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> =>
   return data;
 };
 
+// Get auth token from localStorage
+const getAuthToken = (): string | null => {
+  return localStorage.getItem('dayplanner_token');
+};
+
 // Generic API request function
 const apiRequest = async <T>(
   endpoint: string, 
@@ -31,11 +36,19 @@ const apiRequest = async <T>(
 ): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  // Get auth token and add to headers if available
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  };
+  
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  
   const config: RequestInit = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
     ...options,
   };
 
@@ -100,6 +113,41 @@ export const api = {
   // Health check
   async health(): Promise<ApiResponse<{ status: string; message: string; timestamp: string }>> {
     return apiRequest<{ status: string; message: string; timestamp: string }>('/health');
+  },
+
+  // Authentication
+  auth: {
+    // Google login
+    async googleLogin(idToken: string): Promise<ApiResponse<{ user: any; token: string }>> {
+      return apiRequest<{ user: any; token: string }>('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({ idToken }),
+      });
+    },
+
+    // Get current user
+    async getCurrentUser(): Promise<ApiResponse<{ user: any }>> {
+      return apiRequest<{ user: any }>('/auth/me');
+    },
+
+    // Refresh token
+    async refreshToken(): Promise<ApiResponse<{ token: string }>> {
+      return apiRequest<{ token: string }>('/auth/refresh', {
+        method: 'POST',
+      });
+    },
+
+    // Logout
+    async logout(): Promise<ApiResponse<null>> {
+      return apiRequest<null>('/auth/logout', {
+        method: 'POST',
+      });
+    },
+
+    // Verify token
+    async verifyToken(): Promise<ApiResponse<{ valid: boolean; user: any }>> {
+      return apiRequest<{ valid: boolean; user: any }>('/auth/verify');
+    },
   },
 
   // Tasks
