@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
-import './App.css';
+import { ThemeProvider } from 'styled-components';
 import { useTasks } from './hooks/useTasks';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { 
+  GlobalStyles, 
+  Container, 
+  theme, 
+  LoadingContainer, 
+  LoadingSpinner, 
+  LoadingText,
+  LoadingOverlay,
+  ErrorContainer,
+  ErrorMessage,
+  ActionsSection,
+  Button
+} from './styles';
 import type { 
   Task, 
   TaskFilterType, 
@@ -124,41 +137,41 @@ function DayPlannerApp(): React.ReactElement {
   // Show loading screen on initial load
   if (!initialized && loading) {
     return (
-      <div className="container">
+      <Container>
         <Header />
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading your tasks...</p>
-        </div>
-      </div>
+        <LoadingContainer>
+          <LoadingSpinner />
+          <LoadingText>Loading your tasks...</LoadingText>
+        </LoadingContainer>
+      </Container>
     );
   }
 
   // Show error screen if initialization failed
   if (!initialized && error) {
     return (
-      <div className="container">
+      <Container>
         <Header />
-        <div className="error-container">
-          <div className="error-message">
+        <ErrorContainer>
+          <ErrorMessage>
             <i className="fas fa-exclamation-triangle"></i>
             <h3>Unable to connect to server</h3>
             <p>{error}</p>
-            <button 
-              className="btn-primary" 
+            <Button 
+              variant="primary" 
               onClick={() => taskActions.refresh()}
               disabled={loading}
             >
               {loading ? 'Retrying...' : 'Retry Connection'}
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </ErrorMessage>
+        </ErrorContainer>
+      </Container>
     );
   }
 
   return (
-    <div className="container">
+    <Container>
       <Header />
       
       <TaskInput 
@@ -175,9 +188,9 @@ function DayPlannerApp(): React.ReactElement {
       />
       
       {loading && !initialized && (
-        <div className="loading-overlay">
-          <div className="loading-spinner"></div>
-        </div>
+        <LoadingOverlay>
+          <LoadingSpinner />
+        </LoadingOverlay>
       )}
       
       <TaskList 
@@ -189,24 +202,24 @@ function DayPlannerApp(): React.ReactElement {
         disabled={loading}
       />
       
-      <div className="actions-section">
-        <button 
-          className="btn-secondary"
+      <ActionsSection>
+        <Button 
+          variant="secondary"
           onClick={handleClearCompleted}
           disabled={loading || tasks.filter(t => t.completed).length === 0}
         >
           <i className="fas fa-trash-alt"></i>
           Clear Completed
-        </button>
-        <button 
-          className="btn-danger"
+        </Button>
+        <Button 
+          variant="danger"
           onClick={handleClearAll}
           disabled={loading || tasks.length === 0}
         >
           <i className="fas fa-broom"></i>
           Clear All
-        </button>
-      </div>
+        </Button>
+      </ActionsSection>
 
       <EditTaskModal
         task={editingTask}
@@ -221,18 +234,21 @@ function DayPlannerApp(): React.ReactElement {
         type={error ? 'error' : notification.type}
         onClose={closeNotification}
       />
-    </div>
+    </Container>
   );
 }
 
 // Main App Component with Authentication
 function App(): React.ReactElement {
   return (
-    <AuthProvider>
-      <ProtectedRoute>
-        <DayPlannerApp />
-      </ProtectedRoute>
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <AuthProvider>
+        <ProtectedRoute>
+          <DayPlannerApp />
+        </ProtectedRoute>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

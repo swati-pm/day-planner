@@ -1,0 +1,78 @@
+export const theme = {
+  colors: {
+    primary: '#4f46e5',
+    primaryDark: '#3730a3',
+    secondary: '#6b7280',
+    success: '#10b981',
+    warning: '#d97706',
+    danger: '#dc2626',
+    text: '#333',
+    textGray: '#666',
+    textLight: '#6b7280',
+    border: '#e5e7eb',
+    borderLight: '#f0f0f0',
+    backgroundLight: '#f9fafb',
+    white: '#ffffff',
+    black: '#000000',
+  },
+  gradients: {
+    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%)',
+    backgroundAuth: 'linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%)',
+    primary: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+  },
+  shadows: {
+    sm: '0 4px 6px rgba(0, 0, 0, 0.05)',
+    md: '0 8px 25px rgba(0, 0, 0, 0.1)',
+    lg: '0 25px 50px rgba(0, 0, 0, 0.15)',
+  },
+  borderRadius: {
+    sm: '8px',
+    md: '12px',
+    lg: '20px',
+    full: '50px',
+  },
+  fontSizes: {
+    xs: '0.75rem',
+    sm: '0.9rem',
+    base: '1rem',
+    lg: '1.1rem',
+    xl: '1.2rem',
+    '2xl': '1.5rem',
+    '3xl': '2rem',
+    '4xl': '2.5rem',
+  },
+  fontWeights: {
+    normal: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+  },
+  spacing: {
+    xs: '4px',
+    sm: '8px',
+    md: '12px',
+    lg: '16px',
+    xl: '20px',
+    '2xl': '24px',
+    '3xl': '30px',
+    '4xl': '40px',
+    '5xl': '60px',
+  },
+  transitions: {
+    default: 'all 0.2s ease',
+    slow: 'all 0.3s ease',
+  },
+  breakpoints: {
+    sm: '480px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+  },
+  zIndex: {
+    modal: 1000,
+    dropdown: 100,
+    overlay: 50,
+  },
+};
+
+export type Theme = typeof theme;

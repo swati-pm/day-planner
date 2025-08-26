@@ -1,4 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  ModalOverlay, 
+  ModalContent, 
+  ModalHeader, 
+  ModalTitle, 
+  CloseButton, 
+  ModalBody, 
+  ModalInput, 
+  ModalSelect, 
+  ModalFooter, 
+  Button 
+} from '../styles';
 import type { EditTaskModalProps, UpdateTaskRequest } from '../types';
 
 export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNotification }: EditTaskModalProps): React.ReactElement | null {
@@ -63,16 +75,16 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
   if (!isOpen) return null;
 
   return (
-    <div className="modal show" onClick={handleBackdropClick}>
-      <div className="modal-content">
-        <div className="modal-header">
-          <h3>Edit Task</h3>
-          <button className="close-btn" onClick={onClose}>
+    <ModalOverlay $show={isOpen} onClick={handleBackdropClick}>
+      <ModalContent>
+        <ModalHeader>
+          <ModalTitle>Edit Task</ModalTitle>
+          <CloseButton onClick={onClose}>
             &times;
-          </button>
-        </div>
-        <div className="modal-body">
-          <input
+          </CloseButton>
+        </ModalHeader>
+        <ModalBody>
+          <ModalInput
             type="text"
             value={taskText}
             onChange={(e) => setTaskText(e.target.value)}
@@ -80,29 +92,29 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
             maxLength={100}
             autoFocus
           />
-          <input
+          <ModalInput
             type="time"
             value={taskTime}
             onChange={(e) => setTaskTime(e.target.value)}
           />
-          <select
+          <ModalSelect
             value={taskPriority}
             onChange={(e) => setTaskPriority(e.target.value as 'low' | 'medium' | 'high')}
           >
             <option value="low">Low Priority</option>
             <option value="medium">Medium Priority</option>
             <option value="high">High Priority</option>
-          </select>
-        </div>
-        <div className="modal-footer">
-          <button className="btn-primary" onClick={handleSave}>
+          </ModalSelect>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="primary" onClick={handleSave}>
             Save Changes
-          </button>
-          <button className="btn-secondary" onClick={onClose}>
+          </Button>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </ModalOverlay>
   );
 }

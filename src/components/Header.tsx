@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Header as StyledHeader, HeaderLeft, HeaderRight, HeaderTitle, DateDisplay } from '../styles';
 import UserProfile from './UserProfile';
 
 export default function Header(): React.ReactElement {
@@ -35,18 +36,18 @@ export default function Header(): React.ReactElement {
   }, []);
 
   return (
-    <header className="header">
-      <div className="header-left">
-        <h1>
+    <StyledHeader>
+      <HeaderLeft>
+        <HeaderTitle>
           <i className="fas fa-calendar-day"></i> Day Planner
-        </h1>
-        <div className="date-display">
+        </HeaderTitle>
+        <DateDisplay>
           <span>{currentDate}</span>
-        </div>
-      </div>
-      <div className="header-right">
+        </DateDisplay>
+      </HeaderLeft>
+      <HeaderRight>
         <UserProfile />
-      </div>
-    </header>
+      </HeaderRight>
+    </StyledHeader>
   );
 }

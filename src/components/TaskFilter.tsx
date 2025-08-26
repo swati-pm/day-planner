@@ -1,4 +1,5 @@
 import React from 'react';
+import { FilterSection, FilterButton } from '../styles';
 import type { TaskFilterProps, TaskFilterType } from '../types';
 
 interface FilterOption {
@@ -15,17 +16,17 @@ export default function TaskFilter({ currentFilter, onFilterChange }: TaskFilter
   ];
 
   return (
-    <div className="filter-section">
+    <FilterSection>
       {filters.map(filter => (
-        <button
+        <FilterButton
           key={filter.key}
-          className={`filter-btn ${currentFilter === filter.key ? 'active' : ''}`}
+          $active={currentFilter === filter.key}
           onClick={() => onFilterChange(filter.key)}
           data-filter={filter.key}
         >
           {filter.label}
-        </button>
+        </FilterButton>
       ))}
-    </div>
+    </FilterSection>
   );
 }

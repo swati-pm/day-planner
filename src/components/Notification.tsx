@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NotificationContainer, NotificationIcon, NotificationMessage, NotificationClose } from '../styles';
 import type { NotificationProps, NotificationType } from '../types';
 
 export default function Notification({ message, type, onClose }: NotificationProps): React.ReactElement | null {
@@ -29,42 +30,15 @@ export default function Notification({ message, type, onClose }: NotificationPro
     return icons[type] || icons.info;
   };
 
-  const getBackgroundColor = (type: NotificationType): string => {
-    const colors: Record<NotificationType, string> = {
-      success: '#10b981',
-      error: '#ef4444',
-      info: '#3b82f6',
-      warning: '#f59e0b'
-    };
-    return colors[type] || colors.info;
-  };
-
   if (!message) return null;
 
   return (
-    <div 
-      className={`notification notification-${type} ${isVisible ? 'show' : ''}`}
-      style={{
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        padding: '12px 20px',
-        borderRadius: '8px',
-        color: 'white',
-        fontWeight: '500',
-        zIndex: 9999,
-        transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform 0.3s ease',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        minWidth: '200px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        backgroundColor: getBackgroundColor(type)
-      }}
-    >
-      <i className={`fas fa-${getIcon(type)}`}></i>
-      <span>{message}</span>
-    </div>
+    <NotificationContainer $type={type} $show={isVisible}>
+      <NotificationIcon $type={type} className={`fas fa-${getIcon(type)}`} />
+      <NotificationMessage>{message}</NotificationMessage>
+      <NotificationClose onClick={onClose}>
+        <i className="fas fa-times" />
+      </NotificationClose>
+    </NotificationContainer>
   );
 }

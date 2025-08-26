@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TaskInputSection, InputGroup, TaskInput as StyledTaskInput, TaskTimeInput, TaskPrioritySelect, AddTaskButton } from '../styles';
 import type { TaskInputProps, CreateTaskRequest } from '../types';
 
 export default function TaskInput({ onAddTask, onShowNotification, disabled = false }: TaskInputProps): React.ReactElement {
@@ -41,48 +42,44 @@ export default function TaskInput({ onAddTask, onShowNotification, disabled = fa
   };
 
   return (
-    <div className="task-input-section">
-      <form onSubmit={handleSubmit} className="input-group">
-        <input
+    <TaskInputSection>
+      <InputGroup as="form" onSubmit={handleSubmit}>
+        <StyledTaskInput
           type="text"
           value={taskText}
           onChange={(e) => setTaskText(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="What do you need to do today?"
           maxLength={100}
-          className="task-input"
           autoFocus
           disabled={disabled}
         />
-        <input
+        <TaskTimeInput
           type="time"
           value={taskTime}
           onChange={(e) => setTaskTime(e.target.value)}
           title="Set time (optional)"
-          className="task-time"
           disabled={disabled}
         />
-        <select
+        <TaskPrioritySelect
           value={taskPriority}
           onChange={(e) => setTaskPriority(e.target.value as 'low' | 'medium' | 'high')}
           title="Set priority"
-          className="task-priority"
           disabled={disabled}
         >
           <option value="low">Low Priority</option>
           <option value="medium">Medium Priority</option>
           <option value="high">High Priority</option>
-        </select>
-        <button
+        </TaskPrioritySelect>
+        <AddTaskButton
           type="button"
           onClick={handleAddTask}
           title="Add task"
-          className="add-task-btn"
           disabled={disabled}
         >
           <i className="fas fa-plus"></i>
-        </button>
-      </form>
-    </div>
+        </AddTaskButton>
+      </InputGroup>
+    </TaskInputSection>
   );
 }

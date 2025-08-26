@@ -1,4 +1,15 @@
 import React, { useState } from 'react';
+import { 
+  TaskItemContainer, 
+  TaskHeader, 
+  TaskCheckbox, 
+  TaskText, 
+  TaskPriorityBadge, 
+  TaskMeta, 
+  TaskTime, 
+  TaskActions, 
+  TaskActionButton 
+} from '../styles';
 import type { TaskItemProps } from '../types';
 
 export default function TaskItem({ task, onToggle, onEdit, onDelete, disabled = false }: TaskItemProps): React.ReactElement {
@@ -31,50 +42,51 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete, disabled = 
   };
 
   return (
-    <div 
-      className={`task-item ${task.completed ? 'completed' : ''}`}
+    <TaskItemContainer
+      $completed={task.completed}
+      $disabled={disabled}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className="task-header">
-        <div 
-          className={`task-checkbox ${task.completed ? 'checked' : ''}`}
+      <TaskHeader>
+        <TaskCheckbox 
+          $checked={task.completed}
           onClick={handleToggle}
         >
           {task.completed && <i className="fas fa-check"></i>}
-        </div>
-        <div className="task-text">{task.text}</div>
-        <div className={`task-priority ${task.priority}`}>
+        </TaskCheckbox>
+        <TaskText $completed={task.completed}>{task.text}</TaskText>
+        <TaskPriorityBadge $priority={task.priority}>
           {task.priority}
-        </div>
-      </div>
-      <div className="task-meta">
-        <div className="task-time">
+        </TaskPriorityBadge>
+      </TaskHeader>
+      <TaskMeta>
+        <TaskTime>
           {task.time && (
             <>
               <i className="fas fa-clock"></i> {formatTime(task.time)}
             </>
           )}
-        </div>
-        <div className={`task-actions ${showActions ? 'show' : ''}`}>
-          <button
-            className="task-action-btn"
+        </TaskTime>
+        <TaskActions $show={showActions}>
+          <TaskActionButton
+            $variant="edit"
             onClick={handleEdit}
             title="Edit task"
             disabled={disabled}
           >
             <i className="fas fa-edit"></i>
-          </button>
-          <button
-            className="task-action-btn delete"
+          </TaskActionButton>
+          <TaskActionButton
+            $variant="delete"
             onClick={handleDelete}
             title="Delete task"
             disabled={disabled}
           >
             <i className="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    </div>
+          </TaskActionButton>
+        </TaskActions>
+      </TaskMeta>
+    </TaskItemContainer>
   );
 }

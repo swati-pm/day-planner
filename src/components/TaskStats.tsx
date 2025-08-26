@@ -1,4 +1,5 @@
 import React from 'react';
+import { StatsSection, StatCard, StatNumber, StatLabel } from '../styles';
 import type { TaskStatsProps } from '../types';
 
 export default function TaskStats({ tasks }: TaskStatsProps): React.ReactElement {
@@ -7,19 +8,19 @@ export default function TaskStats({ tasks }: TaskStatsProps): React.ReactElement
   const pendingTasks = totalTasks - completedTasks;
 
   return (
-    <div className="stats-section">
-      <div className="stat-card">
-        <span className="stat-number">{totalTasks}</span>
-        <span className="stat-label">Total Tasks</span>
-      </div>
-      <div className="stat-card">
-        <span className="stat-number">{completedTasks}</span>
-        <span className="stat-label">Completed</span>
-      </div>
-      <div className="stat-card">
-        <span className="stat-number">{pendingTasks}</span>
-        <span className="stat-label">Pending</span>
-      </div>
-    </div>
+    <StatsSection>
+      <StatCard>
+        <StatNumber>{totalTasks}</StatNumber>
+        <StatLabel>Total Tasks</StatLabel>
+      </StatCard>
+      <StatCard>
+        <StatNumber>{completedTasks}</StatNumber>
+        <StatLabel>Completed</StatLabel>
+      </StatCard>
+      <StatCard>
+        <StatNumber>{pendingTasks}</StatNumber>
+        <StatLabel>Pending</StatLabel>
+      </StatCard>
+    </StatsSection>
   );
 }

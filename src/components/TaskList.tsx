@@ -1,4 +1,5 @@
 import React from 'react';
+import { TasksSection, TasksList, EmptyState } from '../styles';
 import TaskItem from './TaskItem';
 import type { TaskListProps, Task } from '../types';
 
@@ -20,19 +21,19 @@ export default function TaskList({ tasks, filter, onToggle, onEdit, onDelete, di
 
   if (filteredTasks.length === 0) {
     return (
-      <div className="tasks-section">
-        <div className="empty-state">
+      <TasksSection>
+        <EmptyState>
           <i className="fas fa-clipboard-list"></i>
           <h3>No tasks yet</h3>
           <p>Add your first task above to get started planning your day!</p>
-        </div>
-      </div>
+        </EmptyState>
+      </TasksSection>
     );
   }
 
   return (
-    <div className="tasks-section">
-      <div className="tasks-list">
+    <TasksSection>
+      <TasksList>
         {filteredTasks.map(task => (
           <TaskItem
             key={task.id}
@@ -43,7 +44,7 @@ export default function TaskList({ tasks, filter, onToggle, onEdit, onDelete, di
             disabled={disabled}
           />
         ))}
-      </div>
-    </div>
+      </TasksList>
+    </TasksSection>
   );
 }
