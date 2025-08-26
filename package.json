@@ -9,10 +9,21 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:cloud": "vite preview --host 0.0.0.0 --port 4173 --disable-host-check",
     "start": "vite",
     "deploy:vercel": "npx vercel --prod",
     "deploy:netlify": "npx netlify deploy --prod --dir=dist",
-    "deploy:surge": "npm run build && npx surge dist --domain day-planner-react.surge.sh"
+    "deploy:surge": "npm run build && npx surge dist --domain day-planner-react.surge.sh",
+    "docker:build": "docker build --platform linux/amd64 -t day-planner:latest .",
+    "docker:run": "docker run --platform linux/amd64 -d -p 4173:4173 --name day-planner-container day-planner:latest",
+    "docker:stop": "docker stop day-planner-container && docker rm day-planner-container",
+    "docker:dev": "docker-compose --profile dev up --build",
+    "docker:prod": "docker-compose up --build -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker system prune -a --volumes",
+    "docker:build-multi": "docker buildx build --platform linux/amd64,linux/arm64 -t day-planner:latest .",
+    "docker:inspect": "docker image inspect day-planner:latest | grep Architecture"
   },
   "dependencies": {
     "react": "^19.1.1",
@@ -27,6 +38,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "typescript": "^5.6.3",
     "vite": "^7.1.2"
   }
 }

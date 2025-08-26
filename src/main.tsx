@@ -1,9 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
+import App from './App'
 
-createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <App />
   </StrictMode>,
@@ -13,10 +18,10 @@ createRoot(document.getElementById('root')).render(
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
-      .then(registration => {
+      .then((registration: ServiceWorkerRegistration) => {
         console.log('SW registered: ', registration);
       })
-      .catch(registrationError => {
+      .catch((registrationError: Error) => {
         console.log('SW registration failed: ', registrationError);
       });
   });

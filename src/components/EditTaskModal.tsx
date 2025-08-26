@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import type { EditTaskModalProps, UpdateTaskRequest } from '../types';
 
-export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNotification }) {
-  const [taskText, setTaskText] = useState('');
-  const [taskTime, setTaskTime] = useState('');
-  const [taskPriority, setTaskPriority] = useState('medium');
+export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNotification }: EditTaskModalProps): React.ReactElement | null {
+  const [taskText, setTaskText] = useState<string>('');
+  const [taskTime, setTaskTime] = useState<string>('');
+  const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
 
   useEffect(() => {
     if (task) {
@@ -14,7 +15,7 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
   }, [task]);
 
   useEffect(() => {
-    const handleEscape = (e) => {
+    const handleEscape = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onClose();
       }
@@ -33,14 +34,16 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
     };
   }, [isOpen, onClose]);
 
-  const handleSave = () => {
+  const handleSave = (): void => {
     const text = taskText.trim();
     if (!text) {
       onShowNotification?.('Please enter a task description', 'error');
       return;
     }
 
-    const updatedTask = {
+    if (!task) return;
+
+    const updatedTask: UpdateTaskRequest = {
       text,
       time: taskTime || null,
       priority: taskPriority
@@ -51,7 +54,7 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
     onClose();
   };
 
-  const handleBackdropClick = (e) => {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) {
       onClose();
     }
@@ -84,7 +87,7 @@ export default function EditTaskModal({ task, isOpen, onSave, onClose, onShowNot
           />
           <select
             value={taskPriority}
-            onChange={(e) => setTaskPriority(e.target.value)}
+            onChange={(e) => setTaskPriority(e.target.value as 'low' | 'medium' | 'high')}
           >
             <option value="low">Low Priority</option>
             <option value="medium">Medium Priority</option>

@@ -1,23 +1,26 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import type { TaskInputProps, CreateTaskRequest } from '../types';
 
-export default function TaskInput({ onAddTask, onShowNotification }) {
-  const [taskText, setTaskText] = useState('');
-  const [taskTime, setTaskTime] = useState('');
-  const [taskPriority, setTaskPriority] = useState('medium');
+export default function TaskInput({ onAddTask, onShowNotification, disabled = false }: TaskInputProps): React.ReactElement {
+  const [taskText, setTaskText] = useState<string>('');
+  const [taskTime, setTaskTime] = useState<string>('');
+  const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     handleAddTask();
   };
 
-  const handleAddTask = () => {
+  const handleAddTask = (): void => {
+    if (disabled) return;
+    
     const text = taskText.trim();
     if (!text) {
       onShowNotification?.('Please enter a task description', 'error');
       return;
     }
 
-    const taskData = {
+    const taskData: CreateTaskRequest = {
       text,
       time: taskTime || null,
       priority: taskPriority
@@ -29,11 +32,9 @@ export default function TaskInput({ onAddTask, onShowNotification }) {
     setTaskText('');
     setTaskTime('');
     setTaskPriority('medium');
-    
-    onShowNotification?.('Task added successfully!', 'success');
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
       handleAddTask();
     }
@@ -51,6 +52,7 @@ export default function TaskInput({ onAddTask, onShowNotification }) {
           maxLength={100}
           className="task-input"
           autoFocus
+          disabled={disabled}
         />
         <input
           type="time"
@@ -58,12 +60,14 @@ export default function TaskInput({ onAddTask, onShowNotification }) {
           onChange={(e) => setTaskTime(e.target.value)}
           title="Set time (optional)"
           className="task-time"
+          disabled={disabled}
         />
         <select
           value={taskPriority}
-          onChange={(e) => setTaskPriority(e.target.value)}
+          onChange={(e) => setTaskPriority(e.target.value as 'low' | 'medium' | 'high')}
           title="Set priority"
           className="task-priority"
+          disabled={disabled}
         >
           <option value="low">Low Priority</option>
           <option value="medium">Medium Priority</option>
@@ -74,6 +78,7 @@ export default function TaskInput({ onAddTask, onShowNotification }) {
           onClick={handleAddTask}
           title="Add task"
           className="add-task-btn"
+          disabled={disabled}
         >
           <i className="fas fa-plus"></i>
         </button>

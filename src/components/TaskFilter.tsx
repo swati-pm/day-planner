@@ -1,5 +1,13 @@
-export default function TaskFilter({ currentFilter, onFilterChange }) {
-  const filters = [
+import React from 'react';
+import type { TaskFilterProps, TaskFilterType } from '../types';
+
+interface FilterOption {
+  key: TaskFilterType;
+  label: string;
+}
+
+export default function TaskFilter({ currentFilter, onFilterChange }: TaskFilterProps): React.ReactElement {
+  const filters: FilterOption[] = [
     { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending' },
     { key: 'completed', label: 'Completed' },

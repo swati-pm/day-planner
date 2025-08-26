@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import type { NotificationProps, NotificationType } from '../types';
 
-export default function Notification({ message, type, onClose }) {
-  const [isVisible, setIsVisible] = useState(false);
+export default function Notification({ message, type, onClose }: NotificationProps): React.ReactElement | null {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
 
   useEffect(() => {
     if (message) {
@@ -12,16 +13,30 @@ export default function Notification({ message, type, onClose }) {
       }, 3000);
 
       return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+      return undefined; // Explicit return for else branch
     }
   }, [message, onClose]);
 
-  const getIcon = (type) => {
-    const icons = {
+  const getIcon = (type: NotificationType): string => {
+    const icons: Record<NotificationType, string> = {
       success: 'check-circle',
       error: 'exclamation-circle',
-      info: 'info-circle'
+      info: 'info-circle',
+      warning: 'exclamation-triangle'
     };
     return icons[type] || icons.info;
+  };
+
+  const getBackgroundColor = (type: NotificationType): string => {
+    const colors: Record<NotificationType, string> = {
+      success: '#10b981',
+      error: '#ef4444',
+      info: '#3b82f6',
+      warning: '#f59e0b'
+    };
+    return colors[type] || colors.info;
   };
 
   if (!message) return null;
@@ -45,8 +60,7 @@ export default function Notification({ message, type, onClose }) {
         gap: '8px',
         minWidth: '200px',
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        backgroundColor: type === 'success' ? '#10b981' : 
-                        type === 'error' ? '#ef4444' : '#3b82f6'
+        backgroundColor: getBackgroundColor(type)
       }}
     >
       <i className={`fas fa-${getIcon(type)}`}></i>

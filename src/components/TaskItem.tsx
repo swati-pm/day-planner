@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import type { TaskItemProps } from '../types';
 
-export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
-  const [showActions, setShowActions] = useState(false);
+export default function TaskItem({ task, onToggle, onEdit, onDelete, disabled = false }: TaskItemProps): React.ReactElement {
+  const [showActions, setShowActions] = useState<boolean>(false);
 
-  const formatTime = (time) => {
+  const formatTime = (time: string | null): string => {
     if (!time) return '';
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
@@ -12,15 +13,18 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
     return `${displayHour}:${minutes} ${period}`;
   };
 
-  const handleToggle = () => {
+  const handleToggle = (): void => {
+    if (disabled) return;
     onToggle(task.id);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (): void => {
+    if (disabled) return;
     onEdit(task);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (): void => {
+    if (disabled) return;
     if (window.confirm('Are you sure you want to delete this task?')) {
       onDelete(task.id);
     }
@@ -57,6 +61,7 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
             className="task-action-btn"
             onClick={handleEdit}
             title="Edit task"
+            disabled={disabled}
           >
             <i className="fas fa-edit"></i>
           </button>
@@ -64,6 +69,7 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
             className="task-action-btn delete"
             onClick={handleDelete}
             title="Delete task"
+            disabled={disabled}
           >
             <i className="fas fa-trash"></i>
           </button>

@@ -1,7 +1,9 @@
+import React from 'react';
 import TaskItem from './TaskItem';
+import type { TaskListProps, Task } from '../types';
 
-export default function TaskList({ tasks, filter, onToggle, onEdit, onDelete }) {
-  const getFilteredTasks = () => {
+export default function TaskList({ tasks, filter, onToggle, onEdit, onDelete, disabled = false }: TaskListProps): React.ReactElement {
+  const getFilteredTasks = (): Task[] => {
     switch (filter) {
       case 'completed':
         return tasks.filter(task => task.completed);
@@ -38,6 +40,7 @@ export default function TaskList({ tasks, filter, onToggle, onEdit, onDelete }) 
             onToggle={onToggle}
             onEdit={onEdit}
             onDelete={onDelete}
+            disabled={disabled}
           />
         ))}
       </div>

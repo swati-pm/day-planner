@@ -37,9 +37,9 @@ jobs:
         publish_dir: ./dist
         cname: day-planner-react.yourdomain.com  # Optional: Add your custom domain
         
-    - name: Deploy to Netlify
+    - name: Deploy to Bunny
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      uses: nwtgck/actions-netlify@v2.1
+      uses: BunnyWay/actions/deploy-script@latest
       with:
         publish-dir: './dist'
         production-branch: main

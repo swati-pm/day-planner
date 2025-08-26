@@ -1,4 +1,7 @@
-export default function TaskStats({ tasks }) {
+import React from 'react';
+import type { TaskStatsProps } from '../types';
+
+export default function TaskStats({ tasks }: TaskStatsProps): React.ReactElement {
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(task => task.completed).length;
   const pendingTasks = totalTasks - completedTasks;

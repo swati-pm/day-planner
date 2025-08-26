@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Production service
+  day-planner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    container_name: day-planner-app
+    platform: linux/amd64
+    ports:
+      - "4173:4173"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4173/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.day-planner.rule=Host(`localhost`)"
+      - "traefik.http.services.day-planner.loadbalancer.server.port=4173"
+
+  # Development service
+  day-planner-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      platforms:
+        - linux/amd64
+    container_name: day-planner-dev
+    platform: linux/amd64
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    profiles:
+      - dev
+
+networks:
+  default:
+    name: day-planner-network

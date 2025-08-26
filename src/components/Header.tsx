@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function Header() {
-  const [currentDate, setCurrentDate] = useState('');
+export default function Header(): React.ReactElement {
+  const [currentDate, setCurrentDate] = useState<string>('');
 
   useEffect(() => {
-    const updateDate = () => {
+    const updateDate = (): void => {
       const now = new Date();
-      const options = { 
+      const options: Intl.DateTimeFormatOptions = { 
         weekday: 'long', 
         year: 'numeric', 
         month: 'long', 
