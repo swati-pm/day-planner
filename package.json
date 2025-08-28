@@ -26,9 +26,6 @@
     "docker:inspect": "docker image inspect day-planner:latest | grep Architecture"
   },
   "dependencies": {
-    "@google-cloud/local-auth": "^3.0.1",
-    "gapi-script": "^1.2.0",
-    "google-auth-library": "^9.4.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "styled-components": "^6.1.19"

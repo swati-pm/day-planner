@@ -1,7 +1,7 @@
 # Dockerfile for Day Planner React App using Vite
 # Target platform: linux/amd64
 
-FROM --platform=linux/amd64 node:18-alpine AS production
+FROM --platform=linux/amd64 node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app

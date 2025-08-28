@@ -1,7 +1,7 @@
 # Development Dockerfile for Day Planner React App
 # Target platform: linux/amd64
 
-FROM --platform=linux/amd64 node:18-alpine
+FROM --platform=linux/amd64 node:20-alpine
 
 # Set working directory
 WORKDIR /app

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { useTasks } from './hooks/useTasks';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
 import { 
   GlobalStyles, 
   Container, 
@@ -33,7 +31,7 @@ import TaskList from './components/TaskList';
 import EditTaskModal from './components/EditTaskModal';
 import NotificationComponent from './components/Notification';
 
-// Main Day Planner App Component (Protected)
+// Main Day Planner App Component
 function DayPlannerApp(): React.ReactElement {
   const [tasksState, taskActions] = useTasks();
   const { tasks, loading, error, initialized } = tasksState;
@@ -238,16 +236,12 @@ function DayPlannerApp(): React.ReactElement {
   );
 }
 
-// Main App Component with Authentication
+// Main App Component
 function App(): React.ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <AuthProvider>
-        <ProtectedRoute>
-          <DayPlannerApp />
-        </ProtectedRoute>
-      </AuthProvider>
+      <DayPlannerApp />
     </ThemeProvider>
   );
 }

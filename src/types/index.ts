@@ -58,15 +58,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+
 
 // Task statistics
 export interface TaskStats {
@@ -156,53 +148,33 @@ export interface TaskActions {
 
 export type UseTasksReturn = [TasksState, TaskActions];
 
-// User and Authentication types
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string | null;
-  verified: boolean;
-  createdAt?: string;
+// API Response types (for backend integration)
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
 }
 
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  nextPage?: number;
+  prevPage?: number;
 }
 
-export interface AuthContextType {
-  authState: AuthState;
-  login: (idToken: string) => Promise<void>;
-  logout: () => void;
-  refreshToken: () => Promise<void>;
-  clearError: () => void;
+export interface PaginatedResponse<T> {
+  items: T[];
+  pagination: PaginationMeta;
 }
 
-export interface LoginResponse {
-  user: User;
-  token: string;
-}
 
-// Google Auth types
-export interface GoogleCredentialResponse {
-  credential: string;
-  select_by: string;
-}
 
-// Component prop types for auth
-export interface LoginComponentProps {
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
-}
 
-export interface ProtectedRouteProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-}
 
 // Utility types
 export type TaskPriority = Task['priority'];

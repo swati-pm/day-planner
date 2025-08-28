@@ -1,213 +1,179 @@
 // API service for communicating with the day-planner backend
 import type {
   Task,
-  BackendTask,
   CreateTaskRequest,
   UpdateTaskRequest,
-  BackendCreateTaskRequest,
-  BackendUpdateTaskRequest,
-  ApiResponse,
-  PaginatedResponse,
-  TaskStats
+  TaskStats,
+  PaginatedResponse
 } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api';
 
+// Backend types (different field names)
+interface BackendTask {
+  id: string;
+  title: string;
+  description?: string | null;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high';
+  dueDate?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendCreateTaskRequest {
+  title: string;
+  description?: string;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+}
+
+interface BackendUpdateTaskRequest {
+  title?: string;
+  description?: string;
+  completed?: boolean;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: string;
+}
+
+interface BackendApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+// Mapping functions between frontend and backend types
+const mapBackendTaskToFrontend = (backendTask: BackendTask): Task => ({
+  id: backendTask.id,
+  text: backendTask.title,
+  completed: backendTask.completed,
+  priority: backendTask.priority,
+  time: backendTask.dueDate || null,
+  createdAt: backendTask.createdAt,
+  updatedAt: backendTask.updatedAt,
+});
+
+const mapFrontendCreateToBackend = (frontendRequest: CreateTaskRequest): BackendCreateTaskRequest => ({
+  title: frontendRequest.text,
+  priority: frontendRequest.priority,
+  dueDate: frontendRequest.time || undefined,
+});
+
+const mapFrontendUpdateToBackend = (frontendRequest: UpdateTaskRequest): BackendUpdateTaskRequest => ({
+  ...(frontendRequest.text !== undefined && { title: frontendRequest.text }),
+  ...(frontendRequest.completed !== undefined && { completed: frontendRequest.completed }),
+  ...(frontendRequest.priority !== undefined && { priority: frontendRequest.priority }),
+  ...(frontendRequest.time !== undefined && { dueDate: frontendRequest.time || undefined }),
+});
+
 // API response handler
-const handleResponse = async <T>(response: Response): Promise<ApiResponse<T>> => {
+const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
   }
   
-  const data: ApiResponse<T> = await response.json();
-  return data;
-};
-
-// Get auth token from localStorage
-const getAuthToken = (): string | null => {
-  return localStorage.getItem('dayplanner_token');
+  const data: BackendApiResponse<T> = await response.json();
+  
+  if (!data.success) {
+    throw new Error(data.error || data.message || 'Request failed');
+  }
+  
+  return data.data as T;
 };
 
 // Generic API request function
 const apiRequest = async <T>(
   endpoint: string, 
   options: RequestInit = {}
-): Promise<ApiResponse<T>> => {
+): Promise<T> => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  // Get auth token and add to headers if available
-  const token = getAuthToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
   
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  
   const config: RequestInit = {
-    headers,
     ...options,
+    headers,
   };
-
+  
   try {
     const response = await fetch(url, config);
     return await handleResponse<T>(response);
   } catch (error) {
-    console.error(`API request failed: ${endpoint}`, error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Unable to connect to server. Please ensure the backend is running.');
+    }
     throw error;
   }
 };
 
-// Data mapping functions
-export const mapFrontendToBackend = (frontendTask: CreateTaskRequest | UpdateTaskRequest): BackendCreateTaskRequest | BackendUpdateTaskRequest => {
-  const backendTask: any = {
-    title: frontendTask.text,
-    priority: frontendTask.priority || 'medium',
-  };
-
-  // Convert time (HH:MM) to dueDate (full ISO date)
-  if (frontendTask.time) {
-    const today = new Date();
-    const [hours, minutes] = frontendTask.time.split(':');
-    today.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
-    backendTask.dueDate = today.toISOString();
-  }
-
-  return backendTask;
-};
-
-export const mapBackendToFrontend = (backendTask: BackendTask): Task => {
-  const frontendTask: Task = {
-    id: backendTask.id,
-    text: backendTask.title,
-    completed: backendTask.completed,
-    priority: backendTask.priority,
-    time: null, // Initialize as null, will be set below if dueDate exists
-    createdAt: backendTask.createdAt,
-    updatedAt: backendTask.updatedAt,
-  };
-
-  // Convert dueDate to time (HH:MM)
-  if (backendTask.dueDate) {
-    const date = new Date(backendTask.dueDate);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    frontendTask.time = `${hours}:${minutes}`;
-  } else {
-    frontendTask.time = null;
-  }
-
-  // Add completedAt if task is completed (simulate from backend data)
-  if (backendTask.completed && backendTask.updatedAt) {
-    frontendTask.completedAt = backendTask.updatedAt;
-  }
-
-  return frontendTask;
-};
-
-// API functions
+// API methods
 export const api = {
-  // Health check
-  async health(): Promise<ApiResponse<{ status: string; message: string; timestamp: string }>> {
-    return apiRequest<{ status: string; message: string; timestamp: string }>('/health');
-  },
-
-  // Authentication
-  auth: {
-    // Google login
-    async googleLogin(idToken: string): Promise<ApiResponse<{ user: any; token: string }>> {
-      return apiRequest<{ user: any; token: string }>('/auth/google', {
-        method: 'POST',
-        body: JSON.stringify({ idToken }),
-      });
-    },
-
-    // Get current user
-    async getCurrentUser(): Promise<ApiResponse<{ user: any }>> {
-      return apiRequest<{ user: any }>('/auth/me');
-    },
-
-    // Refresh token
-    async refreshToken(): Promise<ApiResponse<{ token: string }>> {
-      return apiRequest<{ token: string }>('/auth/refresh', {
-        method: 'POST',
-      });
-    },
-
-    // Logout
-    async logout(): Promise<ApiResponse<null>> {
-      return apiRequest<null>('/auth/logout', {
-        method: 'POST',
-      });
-    },
-
-    // Verify token
-    async verifyToken(): Promise<ApiResponse<{ valid: boolean; user: any }>> {
-      return apiRequest<{ valid: boolean; user: any }>('/auth/verify');
-    },
-  },
-
   // Tasks
   tasks: {
     // Get all tasks
-    async getAll(): Promise<{ tasks: Task[]; pagination: PaginatedResponse<Task>['pagination'] }> {
+    async getAll(): Promise<{ tasks: Task[] }> {
       const response = await apiRequest<PaginatedResponse<BackendTask>>('/tasks');
       return {
-        tasks: response.data!.items.map(mapBackendToFrontend),
-        pagination: response.data!.pagination,
+        tasks: response.items.map(mapBackendTaskToFrontend)
       };
     },
 
     // Get task by ID
     async getById(id: string): Promise<Task> {
-      const response = await apiRequest<BackendTask>(`/tasks/${id}`);
-      return mapBackendToFrontend(response.data!);
+      const backendTask = await apiRequest<BackendTask>(`/tasks/${id}`);
+      return mapBackendTaskToFrontend(backendTask);
     },
 
     // Create new task
     async create(taskData: CreateTaskRequest): Promise<Task> {
-      const backendData = mapFrontendToBackend(taskData) as BackendCreateTaskRequest;
-      const response = await apiRequest<BackendTask>('/tasks', {
+      const backendRequest = mapFrontendCreateToBackend(taskData);
+      const backendTask = await apiRequest<BackendTask>('/tasks', {
         method: 'POST',
-        body: JSON.stringify(backendData),
+        body: JSON.stringify(backendRequest),
       });
-      return mapBackendToFrontend(response.data!);
+      return mapBackendTaskToFrontend(backendTask);
     },
 
     // Update task
     async update(id: string, updates: UpdateTaskRequest): Promise<Task> {
-      const backendUpdates = mapFrontendToBackend(updates) as BackendUpdateTaskRequest;
-      const response = await apiRequest<BackendTask>(`/tasks/${id}`, {
+      const backendRequest = mapFrontendUpdateToBackend(updates);
+      const backendTask = await apiRequest<BackendTask>(`/tasks/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(backendUpdates),
+        body: JSON.stringify(backendRequest),
       });
-      return mapBackendToFrontend(response.data!);
+      return mapBackendTaskToFrontend(backendTask);
     },
 
     // Toggle task completion
     async toggle(id: string): Promise<Task> {
-      const response = await apiRequest<BackendTask>(`/tasks/${id}/toggle`, {
+      const backendTask = await apiRequest<BackendTask>(`/tasks/${id}/toggle`, {
         method: 'PATCH',
       });
-      return mapBackendToFrontend(response.data!);
+      return mapBackendTaskToFrontend(backendTask);
     },
 
     // Delete task
-    async delete(id: string): Promise<ApiResponse<null>> {
-      const response = await apiRequest<null>(`/tasks/${id}`, {
+    async delete(id: string): Promise<boolean> {
+      await apiRequest<null>(`/tasks/${id}`, {
         method: 'DELETE',
       });
-      return response;
+      return true;
     },
 
     // Get task statistics
     async getStats(): Promise<TaskStats> {
-      const response = await apiRequest<TaskStats>('/tasks/stats/summary');
-      return response.data!;
+      return await apiRequest<TaskStats>('/tasks/stats/summary');
     },
+  },
+
+  // Health check
+  async healthCheck(): Promise<{ status: string; message: string; timestamp: string }> {
+    return await apiRequest<{ status: string; message: string; timestamp: string }>('/health');
   },
 };
 

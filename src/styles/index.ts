@@ -11,5 +11,4 @@ export * from './TaskStatsStyles';
 export * from './TaskFilterStyles';
 export * from './TaskListStyles';
 export * from './ModalStyles';
-export * from './AuthStyles';
 export * from './NotificationStyles';

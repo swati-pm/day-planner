@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Header as StyledHeader, HeaderLeft, HeaderRight, HeaderTitle, DateDisplay } from '../styles';
-import UserProfile from './UserProfile';
+import { Header as StyledHeader, HeaderLeft, HeaderTitle, DateDisplay } from '../styles';
 
 export default function Header(): React.ReactElement {
   const [currentDate, setCurrentDate] = useState<string>('');
@@ -45,9 +44,6 @@ export default function Header(): React.ReactElement {
           <span>{currentDate}</span>
         </DateDisplay>
       </HeaderLeft>
-      <HeaderRight>
-        <UserProfile />
-      </HeaderRight>
     </StyledHeader>
   );
 }
